@@ -2,17 +2,17 @@ const express = require("express");
 const router = express.Router();
 
 const auth = require("../middleware/auth");
-// multer to save images on server
+// multer pour sauvegarder les images dans le serveur
 const multer = require("../middleware/multer-config");
 
 const saucesCtrl = require("../controllers/sauces");
-// routes CRUD of sauces
+// routes CRUD des sauces
 router.get("/", auth, saucesCtrl.getAllSauces);
 router.post("/", auth, multer, saucesCtrl.createSauce);
 router.get("/:id", auth, saucesCtrl.getOneSauce);
 router.put("/:id", auth, multer, saucesCtrl.modifySauce);
 router.delete("/:id", auth, saucesCtrl.deleteSauce);
-// route for likes
+// route pour les likes
 router.post("/:id/like", auth, saucesCtrl.likeSauce);
 
 module.exports = router;

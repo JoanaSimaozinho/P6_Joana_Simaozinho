@@ -7,14 +7,18 @@ const userRoutes = require("./routes/user");
 const path = require("path");
 const dotenv = require("dotenv");
 
+// Middleware
 app.use((req, res, next) => {
+  // '*' Permet d'accéder a l'API depuis n'importe quelle origine
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Headers",
+    // Permet d'ajouter les headers mentionnées aux requêtes envoyées vers l'API
     "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
+    // Permet d'envoyer des requêtes avec les méthodes GET POST, ...
     "GET, POST, PUT, DELETE, PATCH, OPTIONS"
   );
   next();
@@ -22,6 +26,7 @@ app.use((req, res, next) => {
 
 dotenv.config();
 
+// Connection de l'API à la base de données
 mongoose
   .connect('mongodb+srv://joana:projet6@projet6.ynfdjk0.mongodb.net/?retryWrites=true&w=majority',
   { useNewUrlParser: true,

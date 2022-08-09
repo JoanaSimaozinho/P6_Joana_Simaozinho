@@ -1,7 +1,7 @@
 const Sauce = require("../models/Sauce");
 const fs = require("fs");
 
-// création of a sauce by user
+// création d'une sauce par un utilisateur
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
   delete sauceObject._id;
@@ -21,14 +21,16 @@ exports.createSauce = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
-//user id getting ONE sauce
+//Permet de trouver la Sauce unique ayant le même ID que le paramètre de la requête
 exports.getOneSauce = (req, res, next) => {
   Sauce.findOne({
     _id: req.params.id,
   })
+  // La Sauce est ensuite retournée dans une Promise et envoyée au front-end
     .then((sauce) => {
       res.status(200).json(sauce);
     })
+    // Si aucune Sauce n'est trouvée ou si une erreur se produit, une erreur 404 est envoyée au front-end avec l'erreur générée
     .catch((error) => {
       res.status(404).json({
         error: error,
@@ -36,7 +38,7 @@ exports.getOneSauce = (req, res, next) => {
     });
 };
 
-// User is updating a sauce he created
+// Permet a l'utilisateur de mettre a jour ou de modifier une sauce qu'il a créee
 exports.modifySauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id }).then((sauce) => {
     const filename = sauce.imageUrl.split("/images/")[1];
@@ -49,6 +51,8 @@ exports.modifySauce = (req, res, next) => {
             }`,
           }
         : { ...req.body };
+        // updateOne permet de mettre a jour la Sauce qui correspond à l'objet passé comme premier argument
+        // Le paramètre id passé dans la demande est utilisé puis il est remplacé par la Sauce passée comme second argument
       Sauce.updateOne(
         { _id: req.params.id },
         { ...sauceObject, _id: req.params.id }
@@ -59,7 +63,7 @@ exports.modifySauce = (req, res, next) => {
   });
 };
 
-// User is deleting one of his sauces
+// Permet de supprimer (on lui passe un objet correspondant au document à supprimer puis une réponse de réussite ou d'échec est envoyée au front-end)
 exports.deleteSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
@@ -73,7 +77,7 @@ exports.deleteSauce = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
-// User is getting ALL sauces
+// L'utilisateur peut voir toutes le ssauces
 exports.getAllSauces = (req, res, next) => {
   Sauce.find()
     .then((sauces) => {
@@ -86,13 +90,13 @@ exports.getAllSauces = (req, res, next) => {
     });
 };
 
-// User is liking / disliking a sauce
+// l'utilisateur peut liker ou disliker les sauces
 exports.likeSauce = (req, res, next) => {
   const sauceId = req.params.id;
   const userId = req.body.userId;
   const like = req.body.like;
-  // 1. user likes a sauce for the first time (like === 1)
-  // pushing the userId to usersLiked array; incrementing likes
+  // 1. l'utilisateur aime une sauce pour la première fois (comme === 1)
+  // pousser l'userId vers le tableau usersLiked ; incrémente les likes
   if (like === 1) {
     Sauce.updateOne(
       { _id: sauceId },
@@ -105,8 +109,8 @@ exports.likeSauce = (req, res, next) => {
       .catch((error) => res.status(500).json({ error }));
   }
 
-  // 2. user DISlikes a sauce for the first time (like === -1)
-  // pushing the userId to usersLiked array; one less like.
+  // 2. l'utilisateur n'aime pas une sauce pour la première fois (comme === -1)
+  // pousse l'userId vers le tableau usersLiked ; un like de moins.
   else if (like === -1) {
     Sauce.updateOne(
       { _id: sauceId },
@@ -118,8 +122,8 @@ exports.likeSauce = (req, res, next) => {
       .then((sauce) => res.status(200).json({ message: "Sauce dépréciée" }))
       .catch((error) => res.status(500).json({ error }));
   }
-  // 3. User changes his mind
-  // 3.1. user is taking back his like :
+  // 3. L'utilisateur change d'avis
+  // 3.1. l'utilisateur reprend son like :
   else {
     Sauce.findOne({ _id: sauceId })
       .then((sauce) => {
@@ -132,7 +136,7 @@ exports.likeSauce = (req, res, next) => {
               res.status(200).json({ message: "Sauce dépréciée" });
             })
             .catch((error) => res.status(500).json({ error }));
-          // 3.2 user is changing his mind on his dislike
+          //3.2 l'utilisateur change d'avis sur son dislike
         } else if (sauce.usersDisliked.includes(userId)) {
           Sauce.updateOne(
             { _id: sauceId },

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
-// schéma of a sauce
+// schéma d'une sauce
+// Schéma de données qui contient les champs souhaités pour chaque sauce
 const sauceSchema = mongoose.Schema({
   userId: { type: String, required: true },
   name: { type: String, required: true },
@@ -15,4 +16,5 @@ const sauceSchema = mongoose.Schema({
   usersDisliked: { type: [String] },
 });
 
+// Exportation du schéma en tant que modèle Mongoose appelé "Sauce"
 module.exports = mongoose.model("Sauce", sauceSchema);
