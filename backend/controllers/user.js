@@ -51,10 +51,10 @@ exports.login = (req, res, next) => {
           // S'il correspond les infos d'identification de l'utilisateur sont valides
           // Dans ce cas une reponse 200 est envoyée contenant l'ID de l'utilisateur et un token
           res.status(200).json({
-            userId: user._id,
+            userId: user.id,
             // Fonction sign utilisée pour chiffrer un nouveau token
             // Ce token contient l'ID de l'utilisateur en tant que payload (données encodées dans le token)
-            token: jwt.sign({ userId: user._id }, process.env.JWT, {
+            token: jwt.sign({ userId: user.id }, process.env.JWT, {
               // Durée de validité du token définie à 24h donc au bout de ces 24h l'utilisateur devra se reconnecter
               // Puis le token est envoyé au front-end avec la réponse
               expiresIn: "24h",

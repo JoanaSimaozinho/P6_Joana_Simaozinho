@@ -4,7 +4,7 @@ const fs = require("fs");
 // création d'une sauce par un utilisateur
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
-  delete sauceObject._id;
+  delete sauceObject.id;
   const sauce = new Sauce({
     ...sauceObject,
     likes: 0,
@@ -24,7 +24,7 @@ exports.createSauce = (req, res, next) => {
 //Permet de trouver la Sauce unique ayant le même ID que le paramètre de la requête
 exports.getOneSauce = (req, res, next) => {
   Sauce.findOne({
-    _id: req.params.id,
+    id: req.params.id,
   })
   // La Sauce est ensuite retournée dans une Promise et envoyée au front-end
     .then((sauce) => {
@@ -40,7 +40,7 @@ exports.getOneSauce = (req, res, next) => {
 
 // Permet a l'utilisateur de mettre a jour ou de modifier une sauce qu'il a créee
 exports.modifySauce = (req, res, next) => {
-  Sauce.findOne({ _id: req.params.id }).then((sauce) => {
+  Sauce.findOne({ id: req.params.id }).then((sauce) => {
     const filename = sauce.imageUrl.split("/images/")[1];
     fs.unlink(`images/${filename}`, () => {
       const sauceObject = req.file
@@ -54,8 +54,8 @@ exports.modifySauce = (req, res, next) => {
         // updateOne permet de mettre a jour la Sauce qui correspond à l'objet passé comme premier argument
         // Le paramètre id passé dans la demande est utilisé puis il est remplacé par la Sauce passée comme second argument
       Sauce.updateOne(
-        { _id: req.params.id },
-        { ...sauceObject, _id: req.params.id }
+        { id: req.params.id },
+        { ...sauceObject, id: req.params.id }
       )
         .then(() => res.status(200).json({ message: "Sauce modifiée !" }))
         .catch((error) => res.status(400).json({ error }));
@@ -65,11 +65,11 @@ exports.modifySauce = (req, res, next) => {
 
 // Permet de supprimer (on lui passe un objet correspondant au document à supprimer puis une réponse de réussite ou d'échec est envoyée au front-end)
 exports.deleteSauce = (req, res, next) => {
-  Sauce.findOne({ _id: req.params.id })
+  Sauce.findOne({ id: req.params.id })
     .then((sauce) => {
       const filename = sauce.imageUrl.split("/images/")[1];
       fs.unlink(`images/${filename}`, () => {
-        Sauce.deleteOne({ _id: req.params.id })
+        Sauce.deleteOne({ id: req.params.id })
           .then(() => res.status(200).json({ message: "Sauce supprimé !" }))
           .catch((error) => res.status(400).json({ error }));
       });
@@ -99,7 +99,7 @@ exports.likeSauce = (req, res, next) => {
   // pousser l'userId vers le tableau usersLiked ; incrémente les likes
   if (like === 1) {
     Sauce.updateOne(
-      { _id: sauceId },
+      { id: sauceId },
       {
         $inc: { likes: like },
         $push: { usersLiked: userId },
@@ -113,7 +113,7 @@ exports.likeSauce = (req, res, next) => {
   // pousse l'userId vers le tableau usersLiked ; un like de moins.
   else if (like === -1) {
     Sauce.updateOne(
-      { _id: sauceId },
+      { id: sauceId },
       {
         $inc: { dislikes: -1 * like },
         $push: { usersDisliked: userId },
@@ -125,11 +125,11 @@ exports.likeSauce = (req, res, next) => {
   // 3. L'utilisateur change d'avis
   // 3.1. l'utilisateur reprend son like :
   else {
-    Sauce.findOne({ _id: sauceId })
+    Sauce.findOne({ id: sauceId })
       .then((sauce) => {
         if (sauce.usersLiked.includes(userId)) {
           Sauce.updateOne(
-            { _id: sauceId },
+            { id: sauceId },
             { $pull: { usersLiked: userId }, $inc: { likes: -1 } }
           )
             .then((sauce) => {
@@ -139,7 +139,7 @@ exports.likeSauce = (req, res, next) => {
           //3.2 l'utilisateur change d'avis sur son dislike
         } else if (sauce.usersDisliked.includes(userId)) {
           Sauce.updateOne(
-            { _id: sauceId },
+            { id: sauceId },
             {
               $pull: { usersDisliked: userId },
               $inc: { dislikes: -1 },
